@@ -1,0 +1,45 @@
+name: Update Sing-box Adblock Rules
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天更新一次
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  update_adblock_rules:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Sing-box
+      run: |
+        curl -fsSL https://sing-box.app/install.sh | sh
+
+    - name: Create rules directory
+      run: |
+        mkdir -p rules
+
+    - name: Download adblock rule files
+      run: |
+        curl -o mini.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/mini.adblock.txt
+        curl -o midi.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/midi.adblock.txt
+        curl -o maxi.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/maxi.adblock.txt
+        curl -o ultimate.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/ultimate.adblock.txt
+
+    - name: Convert adblock rules to binary format
+      run: |
+        sing-box rule-set convert --type adguard --output rules/mini.srs mini.adblock.txt
+        sing-box rule-set convert --type adguard --output rules/midi.srs midi.adblock.txt
+        sing-box rule-set convert --type adguard --output rules/maxi.srs maxi.adblock.txt
+        sing-box rule-set convert --type adguard --output rules/ultimate.srs ultimate.adblock.txt
+
+    - name: Commit & Push SRS files
+      run: |
+        git config --global user.email "github-actions@github.com"
+        git config --global user.name "GitHub Actions"
+        
+        git add rules/*.srs
+        git commit -m "Auto update adblock rules" || echo "No changes"
+        git push
