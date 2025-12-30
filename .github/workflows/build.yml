@@ -23,23 +23,19 @@ jobs:
 
     - name: Download adblock rule files
       run: |
-        curl -o mini.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/mini.adblock.txt
-        curl -o midi.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/midi.adblock.txt
-        curl -o maxi.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/maxi.adblock.txt
-        curl -o ultimate.adblock.txt https://raw.githubusercontent.com/cbuijs/adblocks/main/ultimate.adblock.txt
+        curl -o adguard-sdnsfilter.txt https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+        curl -o ppfeufer-blocklist.txt https://raw.githubusercontent.com/ppfeufer/adguard-filter-list/master/blocklist
 
     - name: Convert adblock rules to binary format
       run: |
-        sing-box rule-set convert --type adguard --output rules/mini.srs mini.adblock.txt
-        sing-box rule-set convert --type adguard --output rules/midi.srs midi.adblock.txt
-        sing-box rule-set convert --type adguard --output rules/maxi.srs maxi.adblock.txt
-        sing-box rule-set convert --type adguard --output rules/ultimate.srs ultimate.adblock.txt
+        sing-box rule-set convert --type adguard --output rules/adguard-sdnsfilter.srs adguard-sdnsfilter.txt
+        sing-box rule-set convert --type adguard --output rules/ppfeufer-blocklist.srs ppfeufer-blocklist.txt
 
     - name: Commit & Push SRS files
       run: |
         git config --global user.email "github-actions@github.com"
         git config --global user.name "GitHub Actions"
-        
+
         git add rules/*.srs
         git commit -m "Auto update adblock rules" || echo "No changes"
         git push
